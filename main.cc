@@ -17,8 +17,9 @@
 #include<iostream>
 #include<string>
 #include <math.h>
-#include "gmsh_mesh.h"
-#include "savedata.h"
+#include "gmshMesh.h"
+#include "gmshData.h"
+#include "gmshElement.h"
 
 using namespace std;
 
@@ -30,7 +31,6 @@ int main(int argc, char** argv)
       abort();
     }
 
-  cout << "Mesh" << endl;
   Gmesh mesh;
   const string name_mesh(argv[1]);
   mesh.readGmesh(name_mesh);
@@ -40,15 +40,22 @@ int main(int argc, char** argv)
 
   mesh.writeGmesh("test.msh", 2);
 
+  Gmesh mesh2(mesh);
+
+  mesh2.convertInDiscontinuousMesh();
+  mesh2.computeDeformed();
+
+  mesh2.writeGmesh("test2.msh", 2);
+
   Data data, data2;
 
   data.modifyNbComposante(1);
 
-  std::vector<Node> v_node= mesh.getNodes();
+  std::vector<Node> v_node= mesh2.getNodes();
 
   for (size_t i = 0; i < v_node.size(); i++) {
-     std::vector<double> value = {1.0 + i} ;
-     data.addData(v_node[i].getNum(), value );
+     std::vector<double> value = {1.0 + (rand() % 10)} ;
+     data.addData(v_node[i].getIndex(), value );
   }
 
 
@@ -58,12 +65,12 @@ int main(int argc, char** argv)
 
   for (size_t i = 0; i < v.size(); i++) {
      std::vector<double> value = {1.0 + i} ;
-     data2.addData(v[i].getNum(), value );
+     data2.addData(v[i].getIndex(), value );
   }
 
   NodeData result(data);
   ElementData result2(data2);
-  result.saveNodeData("result5.msh", mesh);
+  result.saveNodeData("result5.msh", mesh2);
   result2.saveElementData("result4.msh", mesh);
 
   return 0;
