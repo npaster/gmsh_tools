@@ -58,15 +58,15 @@ class GenericData
 {
    protected:
       size_t m_composante;
-      std::vector<Data> m_datas;
       double m_time_value;
       std::string m_title;
+      std::vector<Data> m_datas;
 
    public:
       GenericData();
-      GenericData(const std::vector<Data>& datas);
-      GenericData(const std::vector<Data>& datas, const double time_value, const std::string title);
-      std::vector<Data>getData() const;
+      GenericData(const size_t nbcompo, const std::vector<Data>& datas);
+      GenericData(const size_t nbcompo, const double time_value, const std::string title, const std::vector<Data>& datas);
+      std::vector<Data> getData() const;
       double getTime() const;
       std::string getTitle() const;
       size_t getNbComposante() const;
@@ -81,10 +81,17 @@ class GenericData
 class NodeData : public GenericData
 {
   private:
+     std::vector<SubData> m_subdatas;
      void writeNodeData(const std::string name_mesh) const;
 
   public:
-       void saveNodeData(const std::string name_mesh, const Gmesh& mesh) const;
+     NodeData();
+     NodeData(const size_t nbcompo, const double time_value, const std::string title,
+              const std::vector<Data>& datas, const std::vector<SubData>& subdatas);
+     void saveNodeData(const std::string name_mesh, const Gmesh& mesh);
+     std::vector<SubData> getSubData() const;
+     void addSubData(const Data& subdata, const Node& node);
+     void addSubData(const std::vector<double>& subdata, const Node& node);
 };
 
 class ElementData : public GenericData

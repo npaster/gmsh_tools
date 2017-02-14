@@ -137,6 +137,16 @@ void Element::print() const
    std::cout << "--------------------------------------" <<  std::endl;
 }
 
+// Class Vertice
+
+Vertice::Vertice() : Element(15) {}
+
+
+Vertice::Vertice(const size_t node, const size_t index, const size_t physical_entities, const  size_t elem_tag)
+          : Element((std::vector<size_t> {node}), index, 15, physical_entities, elem_tag)
+{
+  assert((_nodes.size() == 1) && "The size of the vertice is not equal to 1 !");
+}
 
 // Class Edge
 

@@ -74,13 +74,13 @@ void SubData::changeIndex(const size_t index)
 }
 
 // Class GenericData
-GenericData::GenericData() : m_datas(), m_time_value(0.0), m_title("  ") {}
+GenericData::GenericData() : m_composante(0), m_time_value(0.0), m_title("  "), m_datas() {}
 
-GenericData::GenericData(const std::vector<Data>& datas) :
-                     m_datas(datas), m_time_value(0.0), m_title("\" Unknown title \" ") {}
+GenericData::GenericData(const size_t nbcompo, const std::vector<Data>& datas) :
+                     m_composante(nbcompo), m_time_value(0.0), m_title("\" Unknown title \" "), m_datas(datas) {}
 
-GenericData::GenericData(const std::vector<Data>& datas, const double time_value, const std::string title)
-            : m_datas(datas), m_time_value(time_value), m_title(title) {}
+GenericData::GenericData(const size_t nbcompo, const double time_value, const std::string title, const std::vector<Data>& datas)
+            : m_composante(nbcompo), m_time_value(time_value), m_title(title), m_datas(datas) {}
 
 std::vector<Data> GenericData::getData() const {return m_datas;}
 
@@ -106,6 +106,22 @@ void GenericData::addData(const size_t index, const std::vector<double>& values)
 
 
 // Class NodeData
+NodeData::NodeData() : GenericData(), m_subdatas() {}
+NodeData::NodeData(const size_t nbcompo, const double time_value, const std::string title,
+         const std::vector<Data>& datas, const std::vector<SubData>& subdatas) :
+         GenericData(nbcompo, time_value, title, datas), m_subdatas(subdatas) {}
+
+void NodeData::addSubData(const Data& subdata, const Node& node)
+{
+   SubData tmp(subdata, node);
+   m_subdatas.push_back(tmp);
+}
+
+void NodeData::addSubData(const std::vector<double>& subdata, const Node& node)
+{
+   SubData tmp(subdata, node);
+   m_subdatas.push_back(tmp);
+}
 
 void NodeData::writeNodeData(const std::string name_mesh) const
 {
@@ -134,7 +150,7 @@ void NodeData::writeNodeData(const std::string name_mesh) const
    mesh_file << 0 << std::endl;  // time Step
 
    mesh_file << m_composante << std::endl;
-   mesh_file << m_datas.size() << std::endl;
+   mesh_file << m_datas.size() + m_subdatas.size() << std::endl;
 
    for (size_t i = 0; i < m_datas.size(); i++) {
       mesh_file   << m_datas[i].getIndex() << " ";
@@ -150,14 +166,39 @@ void NodeData::writeNodeData(const std::string name_mesh) const
       mesh_file   <<   std::endl;
    }
 
+   for (size_t i = 0; i < m_subdatas.size(); i++) {
+      mesh_file   << m_subdatas[i].getIndex() << " ";
+
+      std::vector<double> tmpresu(m_subdatas[i].getData());
+      for (size_t j = 0; j < std::min(m_composante, tmpresu.size()) ; j++) {
+         mesh_file   << tmpresu[j]   << " ";
+      }
+      for (size_t j = std::min(m_composante, tmpresu.size()); j < m_composante; j++) {
+         mesh_file   << 0.0   << " ";
+      }
+
+      mesh_file   <<   std::endl;
+   }
+
    mesh_file << "$EndNodeData" << std::endl;
    mesh_file.close();
 
 }
 
-void NodeData::saveNodeData(const std::string name_mesh, const Gmesh& mesh) const
+void NodeData::saveNodeData(const std::string name_mesh, const Gmesh& mesh)
 {
-   mesh.writeGmesh(name_mesh, 2);
+   Gmesh meshtmp(mesh);
+
+   if(m_subdatas.size() > 0){
+      size_t indnode = mesh.getNumberofNodes();
+      for (size_t i = 0; i < m_subdatas.size(); i++) {
+         m_subdatas[i].changeIndex(indnode + i + 1);
+         meshtmp.addNode(m_subdatas[i].getNode());
+         Vertice vert(indnode + i + 1, indnode + i + 1, 1 , 1);
+         meshtmp.addVertices(vert);
+      }
+   }
+   meshtmp.writeGmesh(name_mesh, 2);
    writeNodeData(name_mesh);
 }
 

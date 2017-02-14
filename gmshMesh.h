@@ -26,6 +26,7 @@ class Gmesh
    protected:
       size_t _dim_topology;
       std::vector<Node> _nodes;
+      std::vector<Vertice> _vertices;
       std::vector<Edge> _edges;
       std::vector<Triangle> _triangles;
       std::vector<Quadrangle> _quadrangles;
@@ -52,6 +53,7 @@ class Gmesh
       size_t getNumberofNodes() const;
       size_t getNumberofElements() const;
       std::vector<Node> getNodes() const;
+      std::vector<Vertice> getVertices() const;
       std::vector<Edge> getEdges() const;
       std::vector<Triangle> getTriangles() const;
       std::vector<Quadrangle> getQuadrangles() const;
@@ -61,6 +63,7 @@ class Gmesh
       std::vector<Pyramid> getPyramids() const;
 
       void addNode(const Node& node);
+      void addVertices(const Vertice& vertice);
       void addTriangle(const Triangle& triangle);
       void addQuadrangle(const Quadrangle& quad);
       void addHexahedron(const Hexahedron& hexa);

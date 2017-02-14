@@ -41,6 +41,11 @@ std::vector<Node> Gmesh::getNodes() const
   return _nodes;
 }
 
+std::vector<Vertice> Gmesh::getVertices() const
+{
+  return _vertices;
+}
+
 std::vector<Edge> Gmesh::getEdges() const
 {
   return _edges;
@@ -503,6 +508,17 @@ void Gmesh::writeGmesh_MSHformat(const std::string name_mesh) const
    mesh_file << "$Elements" << std::endl;
    mesh_file << _number_of_elements << std::endl;
 
+   for (size_t i = 0; i < _vertices.size(); i++){
+     Vertice vert(_vertices[i]);
+     mesh_file << offset_elements << " "  << 15
+                                  << " "  << 2 //number of tag
+                                  << " "  << vert.getPhysicalEntities()
+                                  << " "  << vert.getElemTag()
+                                  << " "  << (vert.getNodes())[0]
+                                  << std::endl;
+     offset_elements += 1;
+   }
+
    for (size_t i = 0; i < _edges.size(); i++){
      Edge edge(_edges[i]);
      mesh_file << offset_elements << " "  << 1
@@ -646,6 +662,12 @@ void Gmesh::getInfo() const
 void Gmesh::addNode(const Node& node)
 {
    _nodes.push_back(node);
+}
+
+void Gmesh::addVertices(const Vertice& vertice)
+{
+   _vertices.push_back(vertice);
+   _number_of_elements += 1;
 }
 
 void Gmesh::addTriangle(const Triangle& triangle)

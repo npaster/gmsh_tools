@@ -67,6 +67,15 @@ class Element
       void changeElemTag(const size_t elem_tag);
 };
 
+class Vertice : public Element
+{
+   private:
+
+   public:
+      Vertice();
+      Vertice(const size_t node, const size_t index, const size_t physical_entities, const  size_t elem_tag);
+};
+
 class Edge : public Element
 {
    private:
