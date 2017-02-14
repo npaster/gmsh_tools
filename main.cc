@@ -58,8 +58,8 @@ int main(int argc, char** argv)
      std::vector<double> coor = {0.1*(rand() % 10), 0.1*(rand() % 10), 0.0};
      Node nodetmp(coor, v_node.size() +1 +i, 1 );
      Data dat(v_node.size() +1 +i , value);
-     //data.addData(v_node[i].getIndex(), value );
-     data.addSubData(dat, nodetmp);
+     data.addData(v_node[i].getIndex(), value );
+     //data.addSubData(dat, nodetmp);
   }
 
   data.saveNodeData("result5.msh", mesh2);

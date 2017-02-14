@@ -228,9 +228,9 @@ void Gmesh::readGmesh_MSHformat(const std::string name_mesh)
    std::string file_line;
    size_t nb_nodes(0), nb_elements(0);
    std::vector<double> vert(3);
-   size_t index(0), type_elem(0), nbinteger_tag(0), loop_nodes(100);
+   size_t index(0), type_elem(0), nbinteger_tag(0), loop_nodes(100), loop_elem(100);
 
-   while (!mesh_file.eof())
+   while (!mesh_file.eof() && loop_elem)
    {
       getline(mesh_file, file_line);
       if ((file_line.find("$Nodes") != std::string::npos)&&(loop_nodes))
@@ -246,13 +246,13 @@ void Gmesh::readGmesh_MSHformat(const std::string name_mesh)
          assert((_nodes.size() == nb_nodes) && "Problem 1 in mesh reading.");
          loop_nodes = 0;
       }
-      if (file_line.find("$Elements") != std::string::npos)
+      if ((file_line.find("$Elements") != std::string::npos) && (loop_elem))
       {
          mesh_file >> nb_elements;
          _number_of_elements = nb_elements;
-         std::cout << "Reading elements (" << nb_elements << ")" << std::endl;
          for (size_t i = 0 ; i < nb_elements ; ++i)
          {
+            std::cout << i << " / " << nb_elements - 1 << std::endl;
             mesh_file >> index >> type_elem >> nbinteger_tag;
 
             std::vector<size_t> integer_tag(nbinteger_tag);
@@ -287,7 +287,7 @@ void Gmesh::readGmesh_MSHformat(const std::string name_mesh)
                _quadrangles.push_back(quad);
             }
             else if(type_elem == 4){
-               for(size_t inode = 0; inode < 5; inode++){
+               for(size_t inode = 0; inode < 4; inode++){
                   mesh_file >> ind_node;
                   elem_nodes.push_back(ind_node);
                }
@@ -295,7 +295,7 @@ void Gmesh::readGmesh_MSHformat(const std::string name_mesh)
                _tetrahedra.push_back(tetra);
             }
             else if(type_elem == 5){
-               for(size_t inode = 0; inode < 6; inode++){
+               for(size_t inode = 0; inode < 8; inode++){
                   mesh_file >> ind_node;
                   elem_nodes.push_back(ind_node);
                }
@@ -303,7 +303,7 @@ void Gmesh::readGmesh_MSHformat(const std::string name_mesh)
                _hexahedra.push_back(hexa);
             }
             else if(type_elem == 6){
-               for(size_t inode = 0; inode < 7; inode++){
+               for(size_t inode = 0; inode < 6; inode++){
                   mesh_file >> ind_node;
                   elem_nodes.push_back(ind_node);
                }
@@ -311,7 +311,7 @@ void Gmesh::readGmesh_MSHformat(const std::string name_mesh)
                _prisms.push_back(prism);
             }
             else if(type_elem == 7){
-               for(size_t inode = 0; inode < 8; inode++){
+               for(size_t inode = 0; inode < 5; inode++){
                   mesh_file >> ind_node;
                   elem_nodes.push_back(ind_node);
                }
@@ -322,6 +322,7 @@ void Gmesh::readGmesh_MSHformat(const std::string name_mesh)
                std::cout << "Unsupported element" << std::endl;
             }
          }
+         loop_elem = 0;
       }
    }
 

@@ -207,7 +207,7 @@ Hexahedron::Hexahedron() : Element(5) {}
 Hexahedron::Hexahedron(const std::vector<size_t>& nodes, const size_t index, const size_t physical_entities, const  size_t elem_tag)
           : Element(nodes, index, 5, physical_entities, elem_tag)
 {
- assert((_nodes.size() == 8) && "The size of the hexahedron is not equal to 8 !");
+   assert((_nodes.size() == 8) && "The size of the hexahedron is not equal to 8 !");
 }
 
 
@@ -219,7 +219,7 @@ Prism::Prism() : Element(6) {}
 Prism::Prism(const std::vector<size_t>& nodes, const size_t index, const size_t physical_entities, const  size_t elem_tag)
           : Element(nodes, index, 6, physical_entities, elem_tag)
 {
- assert((_nodes.size() == 6) && "The size of the prism is not equal to 6 !");
+   assert((_nodes.size() == 6) && "The size of the prism is not equal to 6 !");
 }
 
 
