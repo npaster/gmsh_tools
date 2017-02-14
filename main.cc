@@ -47,9 +47,9 @@ int main(int argc, char** argv)
 
   mesh2.writeGmesh("test2.msh", 2);
 
-  Data data, data2;
+  NodeData data;
 
-  data.modifyNbComposante(1);
+  data.changeNbComposante(1);
 
   std::vector<Node> v_node= mesh2.getNodes();
 
@@ -58,8 +58,11 @@ int main(int argc, char** argv)
      data.addData(v_node[i].getIndex(), value );
   }
 
+  data.saveNodeData("result5.msh", mesh2);
 
-  data2.modifyNbComposante(1);
+  ElementData data2;
+
+  data2.changeNbComposante(1);
 
   std::vector<Triangle> v= mesh.getTriangles();
 
@@ -68,10 +71,9 @@ int main(int argc, char** argv)
      data2.addData(v[i].getIndex(), value );
   }
 
-  NodeData result(data);
-  ElementData result2(data2);
-  result.saveNodeData("result5.msh", mesh2);
-  result2.saveElementData("result4.msh", mesh);
+
+
+  data2.saveElementData("result4.msh", mesh);
 
   return 0;
 }

@@ -24,34 +24,57 @@
 class Data
 {
   protected:
-     size_t _nb_composante;
-     std::vector< std::pair<size_t, std::vector<double> > > _data;
+     size_t m_index;
+     std::vector<double> m_data;
 
   public:
      Data();
-     Data(const size_t nb_composante, const std::vector< std::pair<size_t, std::vector<double> > >& data);
+     Data(const size_t index, const std::vector<double>& data);
      size_t getNbComposante() const;
-     std::vector< std::pair<size_t, std::vector<double> > > getData() const;
-     void addData(const size_t num, const std::vector<double>& values);
-     void modifyNbComposante(const size_t nb_composante);
+     std::vector<double> getData() const;
+     size_t getIndex() const;
+     void changeData(const size_t indice, const double value);
+     void changeData(const std::vector<double>& data);
+     void changeIndex(const size_t index);
 };
+
+class SubData : public Data
+{
+   private:
+      Node m_node;
+
+   public:
+      SubData();
+      SubData(const std::vector<double>& data, const Node& node);
+      SubData(const Data& data, const Node& node);
+      Node getNode() const;
+      void changeCoordinates(const std::vector<double>& coor);
+      void changeIndex(const size_t index);
+
+};
+
 
 class GenericData
 {
    protected:
-      Data _data;
-      double _time_value;
-      std::string _title;
+      size_t m_composante;
+      std::vector<Data> m_datas;
+      double m_time_value;
+      std::string m_title;
 
    public:
       GenericData();
-      GenericData(const Data& data);
-      GenericData(const Data& data, const double time_value, const std::string title);
-      Data getData() const;
+      GenericData(const std::vector<Data>& datas);
+      GenericData(const std::vector<Data>& datas, const double time_value, const std::string title);
+      std::vector<Data>getData() const;
       double getTime() const;
       std::string getTitle() const;
+      size_t getNbComposante() const;
+      void changeNbComposante(const size_t nbcompo);
       void changeTime(const double time);
       void changeTitle(const std::string title);
+      void addData(const Data& data);
+      void addData(const size_t index, const std::vector<double>& values);
 };
 
 
@@ -61,9 +84,6 @@ class NodeData : public GenericData
      void writeNodeData(const std::string name_mesh) const;
 
   public:
-       NodeData();
-       NodeData(const Data& data);
-       NodeData(const Data& data, const double time_value, const std::string title);
        void saveNodeData(const std::string name_mesh, const Gmesh& mesh) const;
 };
 
@@ -73,9 +93,6 @@ class ElementData : public GenericData
      void writeElementData(const std::string name_mesh) const;
 
   public:
-       ElementData();
-       ElementData(const Data& data);
-       ElementData(const Data& data, const double time_value, const std::string title);
        void saveElementData(const std::string name_mesh, const Gmesh& mesh) const;
 };
 
@@ -85,9 +102,6 @@ class ElementNodeData : public GenericData
      void writeElementNodeData(const std::string name_mesh) const;
 
   public:
-       ElementNodeData();
-       ElementNodeData(const Data& data);
-       ElementNodeData(const Data& data, const double time_value, const std::string title);
        void saveElementNodeData(const std::string name_mesh, const Gmesh& mesh) const;
 };
 

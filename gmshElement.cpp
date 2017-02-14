@@ -25,48 +25,56 @@
 
 // Class Node
 
-Node::Node() : _coordinate(), _index(0), _ref(0) {}
+Node::Node() : m_coordinate(), m_index(0), m_ref(0) {}
 
 
 Node::Node(const std::vector<double>& vert, const size_t index, const size_t ref) :
-                _coordinate(vert), _index(index), _ref(ref)
+                m_coordinate(vert), m_index(index), m_ref(ref)
 {
-  assert((_coordinate.size() == 3) && "The size of the point is not equal to 3 !");
+  assert((m_coordinate.size() == 3) && "The size of the point is not equal to 3 !");
 }
 
 void Node::print() const
 {
    std::cout << "--------------- Node --------------"  << std::endl;
-   std::cout << "Index: " << _index << std::endl;
-   std::cout << "Reference: " << _ref << std::endl;
+   std::cout << "Index: " << m_index << std::endl;
+   std::cout << "Reference: " << m_ref << std::endl;
    std::cout << "Coordinates: "  << std::endl;
-   std::cout << "[x, y, z] = [ " << _coordinate[0] << " "
-                                 << _coordinate[1] << " "
-                                 << _coordinate[2] << " ];" << std::endl;
+   std::cout << "[x, y, z] = [ " << m_coordinate[0] << " "
+                                 << m_coordinate[1] << " "
+                                 << m_coordinate[2] << " ];" << std::endl;
    std::cout << "--------------------------------------" <<  std::endl;
 }
 
 std::vector<double> Node::getCoordinate() const
 {
-  return _coordinate;
+  return m_coordinate;
 }
 
 size_t Node::getRef() const
 {
-    return _ref;
+    return m_ref;
 }
 
 size_t Node::getIndex() const
 {
-    return _index;
+    return m_index;
 }
 
-void Node::changeIndex(const size_t index) {_index = index;}
-void Node::changeRef(const size_t ref) {_ref = ref;}
-void Node::changeCoordinates(const std::vector<double> coor)
+void Node::changeIndex(const size_t index) {m_index = index;}
+void Node::changeRef(const size_t ref) {m_ref = ref;}
+void Node::changeCoordinates(const std::vector<double>& coor)
 {
-   assert(_coordinate.size() == coor.size());
-   _coordinate = coor;
+   assert(coor.size() == 3);
+
+   if(m_coordinate.empty()){
+      m_coordinate.reserve(3);
+      m_coordinate = coor;
+   }
+   else{
+      m_coordinate = coor;
+   }
+
 }
 
 // Class Element

@@ -23,9 +23,9 @@
 class Node
 {
    protected:
-      std::vector<double> _coordinate;
-      size_t _index;
-      size_t _ref;
+      std::vector<double> m_coordinate;
+      size_t m_index;
+      size_t m_ref;
    public:
       Node();
       Node(const std::vector<double>& vert, const size_t index, const size_t ref);
@@ -35,7 +35,7 @@ class Node
       size_t getIndex() const;
       void changeIndex(const size_t index);
       void changeRef(const size_t ref);
-      void changeCoordinates( const std::vector<double> coor);
+      void changeCoordinates(const std::vector<double>& coor);
 };
 
 

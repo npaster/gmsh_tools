@@ -25,54 +25,87 @@
 
 // Class Data
 
-Data::Data() : _nb_composante(0), _data() {}
+Data::Data() : m_index(0), m_data() {}
 
-Data::Data(const size_t nb_composante, const std::vector< std::pair<size_t, std::vector<double> > >& data)
-            : _nb_composante(nb_composante), _data(data) {}
+Data::Data(const size_t index, const std::vector<double>& data)
+            : m_index(index), m_data(data) {}
 
 size_t Data::getNbComposante() const
 {
-   return _nb_composante;
+   return m_index;
 }
 
-std::vector< std::pair<size_t, std::vector<double> > > Data::getData() const
+std::vector<double> Data::getData() const
 {
-   return _data;
+   return m_data;
 }
 
-void Data::addData(const size_t num, const std::vector<double>& values)
+size_t Data::getIndex() const {return m_index;}
+void Data::changeData(const size_t indice, const double value) {m_data.at(indice) = value;}
+void Data::changeData(const std::vector<double>& data)
 {
-   _data.push_back(std::make_pair(num, values));
+   m_data.clear();
+   m_data.reserve(data.size());
+
+   m_data = data;
+}
+void Data::changeIndex(const size_t index) {m_index = index;}
+
+//Class Subdata
+SubData::SubData() : Data(), m_node() {}
+
+SubData::SubData(const std::vector<double>& data, const Node& node) :
+                Data(node.getIndex(), data), m_node(node) {}
+
+SubData::SubData(const Data& data, const Node& node) :
+                SubData(data.getData(), node) {}
+
+Node SubData::getNode() const {return m_node;}
+
+void SubData::changeCoordinates(const std::vector<double>& coor)
+{
+   m_node.changeCoordinates(coor);
 }
 
-
-void Data::modifyNbComposante(const size_t nb_composante)
+void SubData::changeIndex(const size_t index)
 {
-   _nb_composante = nb_composante;
+   m_index = index;
+   m_node.changeIndex(index);
 }
 
 // Class GenericData
-GenericData::GenericData() : _data(), _time_value(0.0), _title("  ") {}
-GenericData::GenericData(const Data& data) : _data(data), _time_value(0.0), _title("\" Unknown title \" ") {}
-GenericData::GenericData(const Data& data, const double time_value, const std::string title)
-            : _data(data), _time_value(time_value), _title(title) {}
+GenericData::GenericData() : m_datas(), m_time_value(0.0), m_title("  ") {}
 
-Data GenericData::getData() const {return _data;}
+GenericData::GenericData(const std::vector<Data>& datas) :
+                     m_datas(datas), m_time_value(0.0), m_title("\" Unknown title \" ") {}
 
-double GenericData::getTime() const {return _time_value;}
-std::string GenericData::getTitle() const {return _title;}
+GenericData::GenericData(const std::vector<Data>& datas, const double time_value, const std::string title)
+            : m_datas(datas), m_time_value(time_value), m_title(title) {}
 
-void GenericData::changeTime(const double time) {_time_value = time;}
-void GenericData::changeTitle(const std::string title) {_title = title;}
+std::vector<Data> GenericData::getData() const {return m_datas;}
+
+double GenericData::getTime() const {return m_time_value;}
+
+std::string GenericData::getTitle() const {return m_title;}
+
+size_t GenericData::getNbComposante() const {return m_composante;}
+
+void GenericData::changeNbComposante(const size_t nbcompo) {m_composante = nbcompo;}
+
+void GenericData::changeTime(const double time) {m_time_value = time;}
+
+void GenericData::changeTitle(const std::string title) {m_title = title;}
+
+void GenericData::addData(const Data& data) {m_datas.push_back(data);}
+
+void GenericData::addData(const size_t index, const std::vector<double>& values)
+{
+   Data tmp(index, values);
+   m_datas.push_back(tmp);
+}
+
 
 // Class NodeData
-
-NodeData::NodeData() : GenericData() {}
-
-NodeData::NodeData(const Data& data) : GenericData(data) {}
-
-NodeData::NodeData(const Data& data, const double time_value, const std::string title)
-      : GenericData(data, time_value, title) {}
 
 void NodeData::writeNodeData(const std::string name_mesh) const
 {
@@ -94,22 +127,26 @@ void NodeData::writeNodeData(const std::string name_mesh) const
    mesh_file << "$NodeData" << std::endl;
    mesh_file << 1 << std::endl;  // string tag
 
-   mesh_file << _title  << std::endl; // name of the view
+   mesh_file << m_title  << std::endl; // name of the view
    mesh_file << 1 << std::endl; // real tag
-   mesh_file << _time_value << std::endl; // time value
+   mesh_file << m_time_value << std::endl; // time value
    mesh_file << 3 << std::endl; // integer tag
    mesh_file << 0 << std::endl;  // time Step
 
-   const std::vector< std::pair<size_t, std::vector<double> > > result=  _data.getData();
+   mesh_file << m_composante << std::endl;
+   mesh_file << m_datas.size() << std::endl;
 
-   mesh_file << _data.getNbComposante() << std::endl;
-   mesh_file << result.size() << std::endl;
+   for (size_t i = 0; i < m_datas.size(); i++) {
+      mesh_file   << m_datas[i].getIndex() << " ";
 
-   for (size_t i = 0; i < result.size(); i++) {
-      mesh_file   << result[i].first   << " ";
-      for (size_t j = 0; j < _data.getNbComposante() ; j++) {
-         mesh_file   << (result[i].second).at(j)   << " ";
+      std::vector<double> tmpresu(m_datas[i].getData());
+      for (size_t j = 0; j < std::min(m_composante, tmpresu.size()) ; j++) {
+         mesh_file   << tmpresu[j]   << " ";
       }
+      for (size_t j = std::min(m_composante, tmpresu.size()); j < m_composante; j++) {
+         mesh_file   << 0.0   << " ";
+      }
+
       mesh_file   <<   std::endl;
    }
 
@@ -126,12 +163,6 @@ void NodeData::saveNodeData(const std::string name_mesh, const Gmesh& mesh) cons
 
 // Class ElementData
 
-ElementData::ElementData() : GenericData() {}
-
-ElementData::ElementData(const Data& data) : GenericData(data) {}
-
-ElementData::ElementData(const Data& data, const double time_value, const std::string title)
-      : GenericData(data, time_value, title) {}
 
 void ElementData::writeElementData(const std::string name_mesh) const
 {
@@ -153,22 +184,26 @@ void ElementData::writeElementData(const std::string name_mesh) const
    mesh_file << "$ElementData" << std::endl;
    mesh_file << 1 << std::endl;  // string tag
 
-   mesh_file <<  _title  << std::endl; // name of the view
+   mesh_file << m_title  << std::endl; // name of the view
    mesh_file << 1 << std::endl; // real tag
-   mesh_file << _time_value << std::endl; // time value
+   mesh_file << m_time_value << std::endl; // time value
    mesh_file << 3 << std::endl; // integer tag
    mesh_file << 0 << std::endl;  // time Step
 
-   const std::vector< std::pair<size_t, std::vector<double> > > result=  _data.getData();
+   mesh_file << m_composante << std::endl;
+   mesh_file << m_datas.size() << std::endl;
 
-   mesh_file << _data.getNbComposante() << std::endl;
-   mesh_file << result.size() << std::endl;
+   for (size_t i = 0; i < m_datas.size(); i++) {
+      mesh_file   << m_datas[i].getIndex() << " ";
 
-   for (size_t i = 0; i < result.size(); i++) {
-      mesh_file   << result[i].first   << " ";
-      for (size_t j = 0; j < _data.getNbComposante() ; j++) {
-         mesh_file   << (result[i].second).at(j)   << " ";
+      std::vector<double> tmpresu(m_datas[i].getData());
+      for (size_t j = 0; j < std::min(m_composante, tmpresu.size()) ; j++) {
+         mesh_file   << tmpresu[j]   << " ";
       }
+      for (size_t j = std::min(m_composante, tmpresu.size()); j < m_composante; j++) {
+         mesh_file   << 0.0   << " ";
+      }
+
       mesh_file   <<   std::endl;
    }
 
@@ -184,14 +219,6 @@ void ElementData::saveElementData(const std::string name_mesh, const Gmesh& mesh
 }
 
 //Class ElementNodeData
-
-
-ElementNodeData::ElementNodeData() : GenericData() {}
-
-ElementNodeData::ElementNodeData(const Data& data) : GenericData(data) {}
-
-ElementNodeData::ElementNodeData(const Data& data, const double time_value, const std::string title)
-      : GenericData(data, time_value, title) {}
 
 void ElementNodeData::writeElementNodeData(const std::string name_mesh) const
 {
@@ -213,22 +240,26 @@ void ElementNodeData::writeElementNodeData(const std::string name_mesh) const
    mesh_file << "$ElementNodeData" << std::endl;
    mesh_file << 1 << std::endl;  // string tag
 
-   mesh_file << _title  << std::endl; // name of the view
+   mesh_file << m_title  << std::endl; // name of the view
    mesh_file << 1 << std::endl; // real tag
-   mesh_file << _time_value << std::endl; // time value
+   mesh_file << m_time_value << std::endl; // time value
    mesh_file << 3 << std::endl; // integer tag
    mesh_file << 0 << std::endl;  // time Step
 
-   const std::vector< std::pair<size_t, std::vector<double> > > result=  _data.getData();
+   mesh_file << m_composante << std::endl;
+   mesh_file << m_datas.size() << std::endl;
 
-   mesh_file << _data.getNbComposante() << std::endl;
-   mesh_file << result.size() << std::endl;
+   for (size_t i = 0; i < m_datas.size(); i++) {
+      mesh_file   << m_datas[i].getIndex() << " ";
 
-   for (size_t i = 0; i < result.size(); i++) {
-      mesh_file   << result[i].first   << " ";
-      for (size_t j = 0; j < _data.getNbComposante() ; j++) {
-         mesh_file   << (result[i].second).at(j)   << " ";
+      std::vector<double> tmpresu(m_datas[i].getData());
+      for (size_t j = 0; j < std::min(m_composante, tmpresu.size()) ; j++) {
+         mesh_file   << tmpresu[j]   << " ";
       }
+      for (size_t j = std::min(m_composante, tmpresu.size()); j < m_composante; j++) {
+         mesh_file   << 0.0   << " ";
+      }
+
       mesh_file   <<   std::endl;
    }
 
