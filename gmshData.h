@@ -17,9 +17,11 @@
 #ifndef GMSHDATA_H
 #define GMSHDATA_H
 
- #include<vector>
- #include<string>
- #include<utility>
+#include<vector>
+#include<string>
+#include<utility>
+
+namespace visu{
 
 class Data
 {
@@ -87,6 +89,8 @@ class NodeData : public GenericData
   public:
      NodeData();
      NodeData(const size_t nbcompo, const double time_value, const std::string title,
+             const std::vector<Data>& datas);
+     NodeData(const size_t nbcompo, const double time_value, const std::string title,
               const std::vector<Data>& datas, const std::vector<SubData>& subdatas);
      void saveNodeData(const std::string name_mesh, const Gmesh& mesh);
      std::vector<SubData> getSubData() const;
@@ -106,10 +110,13 @@ class ElementData : public GenericData
 class ElementNodeData : public GenericData
 {
   private:
-     void writeElementNodeData(const std::string name_mesh) const;
+     void writeElementNodeData(const std::string name_mesh, const Gmesh& mesh) const;
+     void transformeData(const Gmesh& mesh);
 
   public:
        void saveElementNodeData(const std::string name_mesh, const Gmesh& mesh) const;
 };
+
+} //visu
 
 #endif

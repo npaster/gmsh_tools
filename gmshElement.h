@@ -20,6 +20,8 @@
 #include<vector>
 #include<string>
 
+namespace visu{
+
 class Node
 {
    protected:
@@ -139,5 +141,7 @@ class Pyramid : public Element
       Pyramid();
       Pyramid(const std::vector<size_t>& nodes, const size_t index, const size_t physical_entities, const  size_t elem_tag);
 };
+
+}
 
 #endif

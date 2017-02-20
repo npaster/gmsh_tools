@@ -21,7 +21,7 @@
 #include<fstream>
 #include <assert.h>
 
-
+namespace visu{
 
 // Class Node
 
@@ -234,3 +234,5 @@ Pyramid::Pyramid(const std::vector<size_t>& nodes, const size_t index, const siz
 {
  assert((_nodes.size() == 5) && "The size of the pyramid is not equal to 5 !");
 }
+
+} //visu

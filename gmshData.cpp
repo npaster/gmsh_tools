@@ -23,6 +23,9 @@
  #include<fstream>
  #include<iostream>
 
+ namespace visu{
+
+
 // Class Data
 
 Data::Data() : m_index(0), m_data() {}
@@ -107,6 +110,11 @@ void GenericData::addData(const size_t index, const std::vector<double>& values)
 
 // Class NodeData
 NodeData::NodeData() : GenericData(), m_subdatas() {}
+
+NodeData::NodeData(const size_t nbcompo, const double time_value, const std::string title,
+         const std::vector<Data>& datas) :
+         GenericData(nbcompo, time_value, title, datas), m_subdatas() {}
+
 NodeData::NodeData(const size_t nbcompo, const double time_value, const std::string title,
          const std::vector<Data>& datas, const std::vector<SubData>& subdatas) :
          GenericData(nbcompo, time_value, title, datas), m_subdatas(subdatas) {}
@@ -195,7 +203,7 @@ void NodeData::saveNodeData(const std::string name_mesh, const Gmesh& mesh)
          m_subdatas[i].changeIndex(indnode + i + 1);
          meshtmp.addNode(m_subdatas[i].getNode());
          Vertice vert(indnode + i + 1, indnode + i + 1, 1 , 1);
-         meshtmp.addVertices(vert);
+         meshtmp.addVertice(vert);
       }
    }
    meshtmp.writeGmesh(name_mesh, 2);
@@ -253,6 +261,94 @@ void ElementData::writeElementData(const std::string name_mesh) const
 
 }
 
+void ElementNodeData::transformeData(const Gmesh& mesh)
+{
+   std::vector<Data> data = m_datas;
+   m_datas.clear();
+
+   size_t dim = mesh.getDim();
+
+   if(dim == 1){
+      std::vector<Edge> edges = mesh.getEdges();
+      m_datas.reserve(edges.size());
+
+      for (size_t i = 0; i < edges.size(); i++) {
+         std::vector<size_t> nodes = edges[i].getNodes();
+         std::vector<double> values;
+         for (size_t j = 0; j < nodes.size(); j++) {
+            std::vector<double> tmp = data[nodes[j]-1].getData();
+            for (size_t k = 0; k < tmp.size(); k++) {
+               values.push_back(tmp[k]);
+            }
+         }
+         Data tmp_data(edges[i].getIndex(), values);
+         m_datas.push_back(tmp_data);
+      }
+   }
+   else if(dim == 2){
+      std::vector<Triangle> tri = mesh.getTriangles();
+      std::vector<Quadrangle> quad = mesh.getQuadrangles();
+      m_datas.reserve(tri.size() + quad.size());
+
+      for (size_t i = 0; i < tri.size(); i++) {
+         std::vector<size_t> nodes = tri[i].getNodes();
+         std::vector<double> values;
+         for (size_t j = 0; j < nodes.size(); j++) {
+            std::vector<double> tmp = data[nodes[j]-1].getData();
+            for (size_t k = 0; k < tmp.size(); k++) {
+               values.push_back(tmp[k]);
+            }
+         }
+         Data tmp_data(tri[i].getIndex(), values);
+         m_datas.push_back(tmp_data);
+      }
+
+      for (size_t i = 0; i < quad.size(); i++) {
+         std::vector<size_t> nodes = quad[i].getNodes();
+         std::vector<double> values;
+         for (size_t j = 0; j < nodes.size(); j++) {
+            std::vector<double> tmp = data[nodes[j]-1].getData();
+            for (size_t k = 0; k < tmp.size(); k++) {
+               values.push_back(tmp[k]);
+            }
+         }
+         Data tmp_data(quad[i].getIndex(), values);
+         m_datas.push_back(tmp_data);
+      }
+   }
+   else {
+      std::vector<Triangle> tri = mesh.getTriangles();
+      std::vector<Quadrangle> quad = mesh.getQuadrangles();
+      m_datas.reserve(tri.size() + quad.size());
+
+      for (size_t i = 0; i < tri.size(); i++) {
+         std::vector<size_t> nodes = tri[i].getNodes();
+         std::vector<double> values;
+         for (size_t j = 0; j < nodes.size(); j++) {
+            std::vector<double> tmp = data[nodes[j]-1].getData();
+            for (size_t k = 0; k < tmp.size(); k++) {
+               values.push_back(tmp[k]);
+            }
+         }
+         Data tmp_data(tri[i].getIndex(), values);
+         m_datas.push_back(tmp_data);
+      }
+
+      for (size_t i = 0; i < quad.size(); i++) {
+         std::vector<size_t> nodes = quad[i].getNodes();
+         std::vector<double> values;
+         for (size_t j = 0; j < nodes.size(); j++) {
+            std::vector<double> tmp = data[nodes[j]-1].getData();
+            for (size_t k = 0; k < tmp.size(); k++) {
+               values.push_back(tmp[k]);
+            }
+         }
+         Data tmp_data(quad[i].getIndex(), values);
+         m_datas.push_back(tmp_data);
+      }
+   }
+}
+
 void ElementData::saveElementData(const std::string name_mesh, const Gmesh& mesh) const
 {
    mesh.writeGmesh(name_mesh, 2);
@@ -261,7 +357,7 @@ void ElementData::saveElementData(const std::string name_mesh, const Gmesh& mesh
 
 //Class ElementNodeData
 
-void ElementNodeData::writeElementNodeData(const std::string name_mesh) const
+void ElementNodeData::writeElementNodeData(const std::string name_mesh, const Gmesh& mesh) const
 {
    std::ofstream mesh_file;
    mesh_file.open(name_mesh, std::ofstream::out | std::ofstream::app);
@@ -312,5 +408,7 @@ void ElementNodeData::writeElementNodeData(const std::string name_mesh) const
 void ElementNodeData::saveElementNodeData(const std::string name_mesh, const Gmesh& mesh) const
 {
    mesh.writeGmesh(name_mesh, 2);
-   writeElementNodeData(name_mesh);
+   writeElementNodeData(name_mesh, mesh);
 }
+
+} //visu

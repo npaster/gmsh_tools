@@ -21,10 +21,65 @@
 #include<fstream>
 #include <assert.h>
 
+namespace visu{
+
 //  Class Gmesh
 
-Gmesh::Gmesh() : _dim_topology(0), _nodes(), _edges(), _triangles(), _quadrangles(),
+Gmesh::Gmesh() : _dim_topology(0), _nodes(), _vertices(), _edges(), _triangles(), _quadrangles(),
                  _tetrahedra() , _hexahedra(), _prisms(), _pyramids(), _number_of_elements(0) {}
+
+Gmesh::Gmesh(const size_t dim, const std::vector<Node>& nodes, const std::vector<Vertice>& vertices,
+      const std::vector<Edge>& edges) :
+      _dim_topology(dim), _nodes(nodes), _vertices(vertices), _edges(edges), _triangles(), _quadrangles(),
+      _tetrahedra() , _hexahedra(), _prisms(), _pyramids(),
+      _number_of_elements(vertices.size() + edges.size()) {}
+
+Gmesh::Gmesh(const size_t dim, const std::vector<Node>& nodes, const std::vector<Vertice>& vertices,
+      const std::vector<Edge>& edges, const std::vector<Triangle>& triangles,
+      const std::vector<Quadrangle>& quadrangles) :
+      _dim_topology(dim), _nodes(nodes), _vertices(vertices), _edges(edges),
+      _triangles(triangles), _quadrangles(quadrangles),
+      _tetrahedra() , _hexahedra(), _prisms(), _pyramids(),
+      _number_of_elements(vertices.size() + edges.size() + triangles.size() + quadrangles.size()) {}
+
+Gmesh::Gmesh(const size_t dim, const std::vector<Node>& nodes, const std::vector<Vertice>& vertices,
+      const std::vector<Edge>& edges, const std::vector<Triangle>& triangles,
+      const std::vector<Quadrangle>& quadrangles, const std::vector<Tetrahedron>& tetrahedra,
+      const std::vector<Hexahedron> hexahedra) :
+            _dim_topology(dim), _nodes(nodes), _vertices(vertices), _edges(edges),
+            _triangles(triangles), _quadrangles(quadrangles),
+            _tetrahedra(tetrahedra) , _hexahedra(hexahedra), _prisms(), _pyramids(),
+            _number_of_elements(vertices.size() + edges.size() + triangles.size() + quadrangles.size()
+            + tetrahedra.size() + hexahedra.size()) {}
+
+Gmesh::Gmesh(const size_t dim, const std::vector<Node>& nodes, const std::vector<Vertice>& vertices,
+      const std::vector<Edge>& edges, const std::vector<Triangle>& triangles,
+      const std::vector<Quadrangle>& quadrangles, const std::vector<Tetrahedron>& tetrahedra,
+      const std::vector<Hexahedron> hexahedra, const std::vector<Prism>& prisms,
+      const std::vector<Pyramid>& pyramids) :
+      _dim_topology(dim), _nodes(nodes), _vertices(vertices), _edges(edges),
+      _triangles(triangles), _quadrangles(quadrangles),
+      _tetrahedra(tetrahedra) , _hexahedra(hexahedra), _prisms(prisms), _pyramids(pyramids),
+      _number_of_elements(vertices.size() + edges.size() + triangles.size() + quadrangles.size()
+      + tetrahedra.size() + hexahedra.size() + prisms.size() + pyramids.size()) {}
+
+Gmesh::Gmesh(const size_t dim, const std::vector<Node>& nodes, const std::vector<Vertice>& vertices,
+      const std::vector<Edge>& edges, const std::vector<Triangle>& triangles,
+      const std::vector<Tetrahedron>& tetrahedra) :
+            _dim_topology(dim), _nodes(nodes), _vertices(vertices), _edges(edges),
+            _triangles(triangles), _quadrangles(),
+            _tetrahedra(tetrahedra) , _hexahedra(), _prisms(), _pyramids(),
+            _number_of_elements(vertices.size() + edges.size() + triangles.size()
+            + tetrahedra.size()) {}
+
+Gmesh::Gmesh(const size_t dim, const std::vector<Node>& nodes, const std::vector<Vertice>& vertices,
+            const std::vector<Edge>& edges, const std::vector<Quadrangle>& quadrangles,
+            const std::vector<Hexahedron>& hexahedra) :
+               _dim_topology(dim), _nodes(nodes), _vertices(vertices), _edges(edges),
+               _triangles(), _quadrangles(quadrangles),
+               _tetrahedra() , _hexahedra(hexahedra), _prisms(), _pyramids(),
+               _number_of_elements(vertices.size() + edges.size() + quadrangles.size()
+               + hexahedra.size()) {}
 
 size_t Gmesh::getNumberofNodes() const
 {
@@ -34,6 +89,11 @@ size_t Gmesh::getNumberofNodes() const
 size_t Gmesh::getNumberofElements() const
 {
   return _number_of_elements;
+}
+
+size_t Gmesh::getDim() const
+{
+   return _dim_topology;
 }
 
 std::vector<Node> Gmesh::getNodes() const
@@ -79,6 +139,51 @@ std::vector<Prism> Gmesh::getPrisms() const
 std::vector<Pyramid> Gmesh::getPyramids() const
 {
   return _pyramids;
+}
+
+Node Gmesh::getNode(const size_t index) const
+{
+  return _nodes.at(index);
+}
+
+Vertice Gmesh::getVertice(const size_t index) const
+{
+  return _vertices.at(index);
+}
+
+Edge Gmesh::getEdge(const size_t index) const
+{
+  return _edges.at(index);
+}
+
+Triangle Gmesh::getTriangle(const size_t index) const
+{
+  return _triangles.at(index);
+}
+
+Quadrangle Gmesh::getQuadrangle(const size_t index) const
+{
+  return _quadrangles.at(index);
+}
+
+Hexahedron Gmesh::getHexahedron(const size_t index) const
+{
+  return _hexahedra.at(index);
+}
+
+Tetrahedron Gmesh::getTetrahedron(const size_t index) const
+{
+  return _tetrahedra.at(index);
+}
+
+Prism Gmesh::getPrism(const size_t index) const
+{
+  return _prisms.at(index);
+}
+
+Pyramid Gmesh::getPyramid(const size_t index) const
+{
+  return _pyramids.at(index);
 }
 
 void Gmesh::readGmesh_MEDITformat(const std::string name_mesh)
@@ -665,9 +770,15 @@ void Gmesh::addNode(const Node& node)
    _nodes.push_back(node);
 }
 
-void Gmesh::addVertices(const Vertice& vertice)
+void Gmesh::addVertice(const Vertice& vertice)
 {
    _vertices.push_back(vertice);
+   _number_of_elements += 1;
+}
+
+void Gmesh::addEdge(const Edge& edge)
+{
+   _edges.push_back(edge);
    _number_of_elements += 1;
 }
 
@@ -689,7 +800,7 @@ void Gmesh::addHexahedron(const Hexahedron& hexa)
    _number_of_elements += 1;
 }
 
-void Gmesh::addTetrahedon(const Tetrahedron& tetra)
+void Gmesh::addTetrahedron(const Tetrahedron& tetra)
 {
    _tetrahedra.push_back(tetra);
    _number_of_elements += 1;
@@ -856,13 +967,12 @@ void Gmesh::convertInDiscontinuousMesh()
    }
 }
 
-void Gmesh::computeDeformed()
+void Gmesh::computeDeformed(const std::vector<Node>& newNodes)
 {
-   for (size_t i = 0; i < _nodes.size(); i++) {
-      std::vector<double> tmpcoor = _nodes[i].getCoordinate();
-      for (size_t j = 0; j < _dim_topology; j++) {
-         tmpcoor[j] += (rand() % 10) / 100.0;
-      }
-      _nodes[i].changeCoordinates(tmpcoor);
+   assert(newNodes.size() == _nodes.size());
+   for (size_t i = 0; i < newNodes.size(); i++) {
+      _nodes[i].changeCoordinates(newNodes[i].getCoordinate());
    }
 }
+
+} //visu
