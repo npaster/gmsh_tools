@@ -17,9 +17,9 @@
 #include<iostream>
 #include<string>
 #include <math.h>
-#include "gmshMesh.h"
-#include "gmshData.h"
-#include "gmshElement.h"
+#include "gmshMesh.hpp"
+#include "gmshData.hpp"
+#include "gmshElement.hpp"
 
 using namespace std;
 
@@ -28,7 +28,7 @@ int main(int argc, char** argv)
   if (argc < 2)
     {
       cout << "Please, enter the name of your mesh .. " << endl;
-      abort();
+      return 0;
     }
 
   visu::Gmesh mesh;
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
   std::vector<visu::Node> newNodes;
 
   for(size_t i=0; i< mesh2.getNumberofNodes(); i++){
-     std::vector<double> newcoor = {1.0*(rand() % 10), 1.0*(rand() % 10), 0.0};
+     std::array<double, 3> newcoor = {{1.0*(rand() % 10), 1.0*(rand() % 10), 0.0}};
      visu::Node tmpNode(newcoor, i, 0);
      newNodes.push_back(tmpNode);
  }
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 
   for (size_t i = 0; i < v_node.size(); i++) {
      std::vector<double> value = {1.0 + (rand() % 10)} ;
-     std::vector<double> coor = {0.1*(rand() % 10), 0.1*(rand() % 10), 0.0};
+     std::array<double, 3> coor = {{0.1*(rand() % 10), 0.1*(rand() % 10), 0.0}};
      visu::Node nodetmp(coor, v_node.size() +1 +i, 1 );
      visu::Data dat(v_node.size() +1 +i , value);
      data.addData(v_node[i].getIndex(), value );
