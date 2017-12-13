@@ -31,7 +31,7 @@ int main(int argc, char** argv)
       return 0;
     }
 
-  visu::Gmesh mesh;
+  gmsh::Gmesh mesh;
   const string name_mesh(argv[1]);
   mesh.readGmesh(name_mesh);
 
@@ -40,15 +40,15 @@ int main(int argc, char** argv)
 
   mesh.writeGmesh("test.msh", 2);
 
-  visu::Gmesh mesh2(mesh);
+  gmsh::Gmesh mesh2(mesh);
 
   mesh2.convertInDiscontinuousMesh();
 
-  std::vector<visu::Node> newNodes;
+  std::vector<gmsh::Node> newNodes;
 
   for(size_t i=0; i< mesh2.getNumberofNodes(); i++){
      std::array<double, 3> newcoor = {{1.0*(rand() % 10), 1.0*(rand() % 10), 0.0}};
-     visu::Node tmpNode(newcoor, i, 0);
+     gmsh::Node tmpNode(newcoor, i, 0);
      newNodes.push_back(tmpNode);
  }
 
@@ -56,28 +56,28 @@ int main(int argc, char** argv)
 
   mesh2.writeGmesh("test2.msh", 2);
 
-  visu::NodeData data;
+  gmsh::NodeData data;
 
   data.changeNbComposante(1);
 
-  std::vector<visu::Node> v_node= mesh2.getNodes();
+  std::vector<gmsh::Node> v_node= mesh2.getNodes();
 
   for (size_t i = 0; i < v_node.size(); i++) {
      std::vector<double> value = {1.0 + (rand() % 10)} ;
      std::array<double, 3> coor = {{0.1*(rand() % 10), 0.1*(rand() % 10), 0.0}};
-     visu::Node nodetmp(coor, v_node.size() +1 +i, 1 );
-     visu::Data dat(v_node.size() +1 +i , value);
+     gmsh::Node nodetmp(coor, v_node.size() +1 +i, 1 );
+     gmsh::Data dat(v_node.size() +1 +i , value);
      data.addData(v_node[i].getIndex(), value );
      //data.addSubData(dat, nodetmp);
   }
 
   data.saveNodeData("result5.msh", mesh2);
 
-  visu::ElementData data2;
+  gmsh::ElementData data2;
 
   data2.changeNbComposante(1);
 
-  std::vector<visu::Triangle> v= mesh.getTriangles();
+  std::vector<gmsh::Triangle> v= mesh.getTriangles();
 
   for (size_t i = 0; i < v.size(); i++) {
      std::vector<double> value = {1.0 + i} ;
